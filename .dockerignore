@@ -1,8 +1,0 @@
-node_modules
-dist/
-.tmp
-.saas-cache
-screenshots
-*~
-*.swp
-develop

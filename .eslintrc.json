@@ -1,13 +1,18 @@
 {
   "extends": "airbnb-base",
   "env": {
-    "mocha": true,
     "jasmine": true,
-    "phantomjs": true
+    "browser": true,
+    "node": true
   },
   "globals": {
     "angular": true,
     "ng": true,
     "inject": true
+  },
+  "rules": {
+    "max-len": "off",
+    "no-param-reassign": "off",
+    "no-constructor-return": "off"
   }
 }

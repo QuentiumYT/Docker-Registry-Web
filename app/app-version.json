@@ -1,1 +1,6 @@
-{"git": {"sha1": "foo", "ref": "bar"}}
+{
+  "git": {
+    "sha1": "dev",
+    "ref": "dev"
+  }
+}

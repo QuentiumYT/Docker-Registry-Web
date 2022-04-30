@@ -1,0 +1,28 @@
+# https://docs.docker.com/registry/configuration/#list-of-configuration-options
+version: 0.1
+log:
+  level: info
+  formatter: text
+  fields:
+    service: registry
+    environment: production
+storage:
+  cache:
+    layerinfo: inmemory
+  filesystem:
+    rootdirectory: /var/lib/registry
+  delete:
+    enabled: true
+auth:
+  htpasswd:
+    realm: basic-realm
+    path: /etc/docker/registry/htpasswd
+http:
+  addr: :5000
+  # tls:
+  #   certificate: /certs/registry.crt
+  #   key: /certs/registry.key
+  headers:
+    X-Content-Type-Options: [nosniff]
+  debug:
+    addr: :5001

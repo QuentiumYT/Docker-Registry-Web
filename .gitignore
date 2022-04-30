@@ -1,7 +1,16 @@
-node_modules
-dist
-.tmp
-.sass-cache
-*~
-*.swp
+# Distribution / packaging
+dist/
+
+# IDE
+.idea/*
+.vscode/*
+
+# NPM
+node_modules/*
 npm-debug.log
+
+# Yarn
+yarn.lock
+
+# SRC
++extra/

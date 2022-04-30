@@ -26,9 +26,9 @@ function handelSchemaV1(data) {
    * */
 
   let res = {};
-  const history = data.history.map(h => angular.fromJson(h.v1Compatibility))
-    .filter(h => h !== undefined)
-    .map(h => ({
+  const history = data.history.map((h) => angular.fromJson(h.v1Compatibility))
+    .filter((h) => h !== undefined)
+    .map((h) => ({
       id: h.id,
       os: h.os,
       docker_version: h.docker_version,
@@ -41,7 +41,7 @@ function handelSchemaV1(data) {
         .replace(/\t\t/g, '\\\n\t'),
     }));
 
-  const dockerFile = history.map(h => h.layerCmd).reverse();
+  const dockerFile = history.map((h) => h.layerCmd).reverse();
 
   if (history.length > 0) {
     res = history.shift();
@@ -117,6 +117,13 @@ export default class ManifestService {
 
           return res;
         },
+      },
+      rawQuery: {
+        method: 'GET',
+        headers: {
+          accept: 'application/vnd.docker.distribution.manifest.v2+json',
+        },
+        isArray: false,
       },
       delete: {
         url: '/v2/:repository/manifests/:digest',

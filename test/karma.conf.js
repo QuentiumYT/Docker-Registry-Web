@@ -1,4 +1,4 @@
-const webpackConfig = require('../webpack.config.js');
+const webpackConfig = require('../webpack.config');
 
 module.exports = (config) => {
   config.set({
@@ -32,9 +32,9 @@ module.exports = (config) => {
     // - Safari (only Mac)
     // - PhantomJS
     // - IE (only Windows)
-    browsers: [
-      'PhantomJS',
-    ],
+    // browsers: [
+    //   '',
+    // ],
 
     // list of files / patterns to load in the browser
     files: [

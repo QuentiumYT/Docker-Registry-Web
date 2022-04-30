@@ -2,73 +2,102 @@
 
 The `docker-registry-frontend` is a browser-based solution for browsing and modifying a private Docker registry.
 
-[![](https://badge.imagelayers.io/konradkleine/docker-registry-frontend:v2.svg)](https://imagelayers.io/?images=konradkleine/docker-registry-frontend:v2 'Get your own badge on imagelayers.io')
-[![devDependency Status](https://david-dm.org/kwk/docker-registry-frontend/dev-status.svg?style=flat-square)](https://david-dm.org/kwk/docker-registry-frontend#info=devDependencies)
-[![Issue Count](https://codeclimate.com/github/kwk/docker-registry-frontend/badges/issue_count.svg)](https://codeclimate.com/github/kwk/docker-registry-frontend)
-
-# Before opening a bug report...
-
-...make sure you have consulted the `example-setup/README.md`.
-
-## PLEASE, READ THIS!
-
-***THIS VERSION OF THE DOCKER REGISTRY FRONTEND ONLY WORKS WITH THE DOCKER REGISTRY V2. THERE'S ALSO A LEGACY ["V1-DEPRECATED" BRANCH][v1branch] WHICH WORKS WITH THE OLD 0.9.1 DOCKER REGISTRY. THE ["V1-DEPRECATED" BRANCH][v1branch] IS VERY STABLE BUT WON'T RECEIVE SIGNIFICANT ATTENTION ANY LONGER BECAUSE THE OLD DOCKER REGISTRY WAS DECLARED DEPRECATED.***
-
-***THE V2 SUPPORT FOR THE DOCKER REGISTRY FRONTEND IS STILL UNDER ACTIVE DEVELOPMENT. THERE'S A FAIR CHANCE THAT A MAJORITY OF FEATURES IS NOT YET IMPLEMENTED. CHECK THE [ISSUES](https://github.com/kwk/docker-registry-frontend/issues) AND OPEN A BUG IF SOMETHING DOESN'T WORK RIGHT AWAY.***
-
-***TO PULL A VERSION OF THIS BRANCH FROM THE DOCKER HUB, MAKE SURE YOU PULL AND RUN ```konradkleine/docker-registry-frontend:v2```***
-
 # Features
 
-For a list of all the features, please see the [Wiki][features]. Note, that currently the Wiki pages still refer to version 1 of this frontend.
+For a list of all the features, please see the [Wiki](https://github.com/QuentiumYT/Docker-Registry-Web/wiki/Features). Note, that currently the Wiki pages still refer to version 1 of this frontend.
 
 # Development
 
-To learn how to develop for the docker-registry-frontend, see
-[here](develop/README.md).
+To learn how to develop for the docker-registry-frontend, see [here](develop/README.md).
+
+# Private / local usage
+
+For a private usage, change the config and execute the following commands:
+
+### Pre installation for local usage
+
+Add `172.200.0.2 registry.loc` to your `/etc/hosts`
+
+Run `bash setup_local.sh`, it will:
+
+- Change the config for a local installation on your machine
+- Add Registry IPs to docker insecure login list
+
+### docker-compose.yml changes for hosted website
+
+Change `ENV_REGISTRY_PROXY_FQDN` and `ENV_REGISTRY_PROXY_PORT` env variables
+
+Uncomment `ENV_USE_SSL` and `ENV_DOCKER_REGISTRY_USE_SSL` if SSL is needed (recommended)
+
+### Shell commands
+
+```bash
+# Add the global user (Bcrypt is the only password that is supported for authentication)
+htpasswd -Bc config/htpasswd root
+# Run the container
+docker-compose up -d
+# Login to the registry with the public IP
+docker login <PROXY_FQDN>:5005
+# or local usage
+docker login registry.loc
+
+# Push an image with a specific tag
+docker tag debian:bullseye <PROXY_FQDN>:5005/<image_name>:<tag>
+docker push <PROXY_FQDN>:5005/<image_name>:<tag>
+# or local usage
+docker tag debian:bullseye registry.loc/<image_name>:<tag>
+docker push registry.loc/<image_name>:<tag>
+```
 
 # Usage
 
 This application is available in the form of a Docker image that you can run as a container by executing this command:
 
-    sudo docker run \
-      -d \
-      -e ENV_DOCKER_REGISTRY_HOST=ENTER-YOUR-REGISTRY-HOST-HERE \
-      -e ENV_DOCKER_REGISTRY_PORT=ENTER-PORT-TO-YOUR-REGISTRY-HOST-HERE \
-      -p 8080:80 \
-      konradkleine/docker-registry-frontend:v2
+```bash
+sudo docker run \
+  -d \
+  -e ENV_DOCKER_REGISTRY_HOST=ENTER-YOUR-REGISTRY-HOST-HERE \
+  -e ENV_DOCKER_REGISTRY_PORT=ENTER-PORT-TO-YOUR-REGISTRY-HOST-HERE \
+  -p 8080:80 \
+  quentin/docker-registry-frontend
+```
 
 This command starts the container and forwards the container's private port `80` to your host's port `8080`. Make sure you specify the correct url to your registry.
 
-When the application runs you can open your browser and navigate to [http://localhost:8080][1].
+When the application runs you can open your browser and navigate to http://localhost:8080.
 
 ## Docker registry using SSL encryption
 
 If the Docker registry is only reachable via HTTPs (e.g. if it sits behind a proxy) , you can run the following command:
 
-    sudo docker run \
-      -d \
-      -e ENV_DOCKER_REGISTRY_HOST=ENTER-YOUR-REGISTRY-HOST-HERE \
-      -e ENV_DOCKER_REGISTRY_PORT=ENTER-PORT-TO-YOUR-REGISTRY-HOST-HERE \
-      -e ENV_DOCKER_REGISTRY_USE_SSL=1 \
-      -p 8080:80 \
-      konradkleine/docker-registry-frontend:v2
+```bash
+sudo docker run \
+  -d \
+  -e ENV_DOCKER_REGISTRY_HOST=ENTER-YOUR-REGISTRY-HOST-HERE \
+  -e ENV_DOCKER_REGISTRY_PORT=ENTER-PORT-TO-YOUR-REGISTRY-HOST-HERE \
+  -e ENV_DOCKER_REGISTRY_USE_SSL=1 \
+  -p 8080:80 \
+  quentin/docker-registry-frontend
+```
 
 ## SSL encryption
 
 If you want to run the application with SSL enabled, you can do the following:
 
-    sudo docker run \
-      -d \
-      -e ENV_DOCKER_REGISTRY_HOST=ENTER-YOUR-REGISTRY-HOST-HERE \
-      -e ENV_DOCKER_REGISTRY_PORT=ENTER-PORT-TO-YOUR-REGISTRY-HOST-HERE \
-      -e ENV_USE_SSL=yes \
-      -v $PWD/server.crt:/etc/apache2/server.crt:ro \
-      -v $PWD/server.key:/etc/apache2/server.key:ro \
-      -p 443:443 \
-      konradkleine/docker-registry-frontend:v2
+```bash
+sudo docker run \
+  -d \
+  -e ENV_DOCKER_REGISTRY_HOST=ENTER-YOUR-REGISTRY-HOST-HERE \
+  -e ENV_DOCKER_REGISTRY_PORT=ENTER-PORT-TO-YOUR-REGISTRY-HOST-HERE \
+  -e ENV_DOCKER_REGISTRY_USE_SSL=1 \
+  -e ENV_USE_SSL=yes \
+  -v $PWD/path_to_local_cert.crt:/certs/registry.crt:ro \
+  -v $PWD/path_to_local_cert.key:/certs/registry.key:ro \
+  -p 443:443 \
+  quentin/docker-registry-frontend
+```
 
-Note that the application still serves the port `80` but it is simply not exposed ;). Enable it at your own will. When the application runs with SSL you can open your browser and navigate to [https://localhost][2].
+Note that the application still serves the port `80` but it is simply not exposed ;). Enable it at your own will. When the application runs with SSL you can open your browser and navigate to https://localhost.
 
 ## Use the application as the registry
 
@@ -76,21 +105,25 @@ If you are running the Docker registry on the same host as the application but o
 
 Normally this would then give bad advice on how to access a tag:
 
-    docker pull localhost:5000/yourname/imagename:latest
+```bash
+docker pull localhost:5000/yourname/imagename:latest
+```
 
 We can override what hostname and port to put here:
 
-    sudo docker run \
-     -d \
-     -e ENV_DOCKER_REGISTRY_HOST=localhost \
-     -e ENV_DOCKER_REGISTRY_PORT=5000 \
-     -e ENV_REGISTRY_PROXY_FQDN=ENTER-YOUR-APPLICATION-HOST-HERE \
-     -e ENV_REGISTRY_PROXY_PORT=ENTER-PORT-TO-YOUR-APPLICATION-HOST-HERE \
-     -e ENV_USE_SSL=yes \
-     -v $PWD/server.crt:/etc/apache2/server.crt:ro \
-     -v $PWD/server.key:/etc/apache2/server.key:ro \
-     -p 443:443 \
-     konradkleine/docker-registry-frontend:v2
+```bash
+sudo docker run \
+ -d \
+ -e ENV_DOCKER_REGISTRY_HOST=localhost \
+ -e ENV_DOCKER_REGISTRY_PORT=5000 \
+ -e ENV_REGISTRY_PROXY_FQDN=ENTER-YOUR-APPLICATION-HOST-HERE \
+ -e ENV_REGISTRY_PROXY_PORT=ENTER-PORT-TO-YOUR-APPLICATION-HOST-HERE \
+ -e ENV_USE_SSL=yes \
+ -v $PWD/server.crt:/certs/registry.crt:ro \
+ -v $PWD/server.key:/certs/registry.key:ro \
+ -p 443:443 \
+ registry
+```
 
 A value of `80` or `443` for `ENV_REGISTRY_PROXY_PORT` will not actually be shown as Docker will check `443` and then `80` by default.
 
@@ -99,32 +132,36 @@ A value of `80` or `443` for `ENV_REGISTRY_PROXY_PORT` will not actually be show
 If you want to use Kerberos to protect access to the registry frontend, you can
 do the following:
 
-    sudo docker run \
-      -d \
-      -e ENV_DOCKER_REGISTRY_HOST=ENTER-YOUR-REGISTRY-HOST-HERE \
-      -e ENV_DOCKER_REGISTRY_PORT=ENTER-PORT-TO-YOUR-REGISTRY-HOST-HERE \
-      -e ENV_AUTH_USE_KERBEROS=yes \
-      -e ENV_AUTH_NAME="Kerberos login" \
-      -e ENV_AUTH_KRB5_KEYTAB=/etc/apache2/krb5.keytab \
-      -v $PWD/krb5.keytab:/etc/apache2/krb5.keytab:ro \
-      -e ENV_AUTH_KRB_REALMS="ENTER.YOUR.REALMS.HERE" \
-      -e ENV_AUTH_KRB_SERVICE_NAME=HTTP \
-      -p 80:80 \
-      konradkleine/docker-registry-frontend:v2
+```bash
+sudo docker run \
+  -d \
+  -e ENV_DOCKER_REGISTRY_HOST=ENTER-YOUR-REGISTRY-HOST-HERE \
+  -e ENV_DOCKER_REGISTRY_PORT=ENTER-PORT-TO-YOUR-REGISTRY-HOST-HERE \
+  -e ENV_AUTH_USE_KERBEROS=yes \
+  -e ENV_AUTH_NAME="Kerberos login" \
+  -e ENV_AUTH_KRB5_KEYTAB=/etc/apache2/krb5.keytab \
+  -v $PWD/krb5.keytab:/etc/apache2/krb5.keytab:ro \
+  -e ENV_AUTH_KRB_REALMS="ENTER.YOUR.REALMS.HERE" \
+  -e ENV_AUTH_KRB_SERVICE_NAME=HTTP \
+  -p 80:80 \
+  registry
+```
 
 You can of course combine SSL and Kerberos.
 
 # Browse mode
 
-If you want to start applicaton with browse mode which means no repos/tags management feature in the UI, You can specify `ENV_MODE_BROWSE_ONLY` flag as follows:
+If you want to start application with browse mode which means no repos/tags management feature in the UI, You can specify `ENV_MODE_BROWSE_ONLY` flag as follows:
 
-    sudo docker run \
-      -d \
-      -e ENV_DOCKER_REGISTRY_HOST=ENTER-YOUR-REGISTRY-HOST-HERE \
-      -e ENV_DOCKER_REGISTRY_PORT=ENTER-PORT-TO-YOUR-REGISTRY-HOST-HERE \
-      -e ENV_MODE_BROWSE_ONLY=true \
-      -p 8080:80 \
-      konradkleine/docker-registry-frontend:v2
+```bash
+sudo docker run \
+  -d \
+  -e ENV_DOCKER_REGISTRY_HOST=ENTER-YOUR-REGISTRY-HOST-HERE \
+  -e ENV_DOCKER_REGISTRY_PORT=ENTER-PORT-TO-YOUR-REGISTRY-HOST-HERE \
+  -e ENV_MODE_BROWSE_ONLY=true \
+  -p 8080:80 \
+  registry
+```
 
 You can set `true` or `false` to this flag.
 
@@ -132,7 +169,7 @@ You can set `true` or `false` to this flag.
 
 # Default repositories per page
 
-By default 20 repositories will be listed per page. To adjust this number, to
+By default 10 repositories will be listed per page. To adjust this number, to
 let's say 50 pass `-e ENV_DEFAULT_REPOSITORIES_PER_PAGE=50` to your `docker run`
 command.
 
@@ -144,16 +181,7 @@ command. Note that providing a big number will result in a heavy load on browser
 
 # Contributions are welcome!
 
-If you like the application, I invite you to contribute and report bugs or feature request on the project's github page: [https://github.com/kwk/docker-registry-frontend][3].
+If you like the application, I invite you to contribute and report bugs or feature request on the project's github page: https://github.com/QuentiumYT/Docker-Registry-Web/issues.
 To learn how to develop for the docker-registry-frontend, see [here](develop/README.md).
 
 Thank you for your interest!
-
- -- Konrad
-
-
-  [1]: http://localhost:8080
-  [2]: https://localhost
-  [3]: https://github.com/kwk/docker-registry-frontend
-  [features]: https://github.com/kwk/docker-registry-frontend/wiki/Features
-  [v1branch]: https://github.com/kwk/docker-registry-frontend/tree/v1-deprecated

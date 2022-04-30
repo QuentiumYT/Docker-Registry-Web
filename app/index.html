@@ -1,32 +1,35 @@
 <!doctype html>
 <html lang="en" ng-app="docker-registry-frontend" ng-controller="MainController as main">
-  <head>
-    <base href="/">
-    <meta charset="utf-8">
-    <title ng-bind-template="Docker registry {{main.$location.path()}}">Docker registry</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  </head>
-  <body>
-    <!--[if lt IE 7]>
+
+<head>
+  <base href="/">
+  <meta charset="utf-8">
+  <title ng-bind-template="Docker registry {{main.$location.path()}}">Docker registry</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+</head>
+
+<body>
+  <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
-    <div class="container">
-      <div class="masthead">
-        <h3 class="text-muted">Docker Registry Frontend</h3>
-      </div>
-
-      <main ng-view></main>
-
-      <footer>
-        <p>
-          <a href="https://github.com/kwk/docker-registry-frontend/issues/new"><span class="glyphicon glyphicon-fire"></span> <small>Report a bug</small></a>
-          <a href="https://github.com/kwk/docker-registry-frontend/fork"><span class="glyphicon glyphicon-random"></span> <small> Fork me on GitHub</small></a>
-          <a href="about"><span class="glyphicon glyphicon-question-sign"></span> <small>About</small></a>
-          <a href="https://github.com/kwk/docker-registry-frontend/commit/{{main.appVersion.git.sha1}}"><span class="glyphicon glyphicon-barcode"></span> <small>This is git revision: <span ng-bind-template="{{main.appVersion.git.sha1 | limitTo: 7}}">-</span></small></a>
-        </p>
-      </footer>
+  <div class="container">
+    <div class="masthead">
+      <h3 class="text-muted">Docker Registry Frontend</h3>
     </div>
+
+    <main ng-view></main>
+
+    <footer>
+      <p>
+        <a href="about"><span class="glyphicon glyphicon-question-sign"></span> <small>About</small></a>
+        <a href="https://github.com/kwk/docker-registry-frontend" target="_blank"><span class="glyphicon glyphicon-arrow-up"></span> <small>Original project</small></a>
+        <a href="https://github.com/QuentiumYT/Docker-Registry-Web" target="_blank"><span class="glyphicon glyphicon-pencil"></span> <small><i>Modified by Quentin Lienhardt for UltraGroup</i></small></a>
+        <a href="https://github.com/QuentiumYT/Docker-Registry-Web/commit/{{main.appVersion.git.sha1}}" target="_blank"><span class="glyphicon glyphicon-barcode"></span> <small>Git revision: <span ng-bind-template="{{main.appVersion.git.sha1 | limitTo: 7}}"></span></small></a>
+      </p>
+    </footer>
+  </div>
 </body>
+
 </html>

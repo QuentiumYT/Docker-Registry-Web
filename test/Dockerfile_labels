@@ -1,0 +1,8 @@
+FROM scratch
+
+LABEL maintainer="Quentin Lienhardt"
+
+LABEL comment="Hey"
+LABEL description="Hello"
+
+ENV key="value"

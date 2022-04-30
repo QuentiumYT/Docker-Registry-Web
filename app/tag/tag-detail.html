@@ -1,9 +1,9 @@
 <ol class="breadcrumb">
-    <li><a href="home">Home</a></li>
-    <li><a href="repositories/">Repositories</a></li>
-    <li ng-show="repositoryUser"><a href="repositories/{{tag.repositoryUser}}">{{tag.repositoryUser}}</a></li>
-    <li><a href="repository/{{tag.repository}}">{{tag.repositoryName}}</a></li>
-    <li><a href="tag/{{tag.repository}}/{{tag.tagName}}">{{tag.tagName}}</a></li>
+  <li><a href="home">Home</a></li>
+  <li><a href="repositories/">Repositories</a></li>
+  <li ng-show="repositoryUser"><a href="repositories/{{tag.repositoryUser}}">{{tag.repositoryUser}}</a></li>
+  <li><a href="repository/{{tag.repository}}">{{tag.repositoryName}}</a></li>
+  <li><a href="tag/{{tag.repository}}/{{tag.tagName}}">{{tag.tagName}}</a></li>
 </ol>
 
 <h1>
@@ -15,15 +15,17 @@
   <span ng-hide="tag.repositoryUser"><a href="tag/{{tag.repositoryName}}/{{tag.tagName}}">{{tag.tagName}}</a></span>
 
   <div ng-hide="tag.appMode.browseOnly" class="pull-right">
-    <button type="button" ng-click="selection=['{{tag.repository}}:{{tag.tagName}}']; tag.openConfirmTagDeletionDialog()" class="btn btn-danger">
+    <button type="button" ng-click="tag.selectedTags=['{{tag.repository}}:{{tag.tagName}}']; tag.openConfirmTagDeletionDialog()" class="btn btn-danger">
       <span class="glyphicon glyphicon-trash"></span> Delete Tag
     </button>
   </div>
-
 </h1>
 
-<div class="well"><code>
-  docker pull {{tag.registryHost.host}}<span ng-if="tag.registryHost.port != 80 && tag.registryHost.port != 443">:{{tag.registryHost.port}}</span>/{{tag.repository}}:{{tag.tagName}}
-</code></div>
+<div class="well">
+  <code style="line-height: 34px">docker pull {{tag.registryHost.host}}<span ng-if="tag.registryHost.port != 80 && tag.registryHost.port != 443">:{{tag.registryHost.port}}</span>/{{tag.repository}}:{{tag.tagName}}</code>
+  <button type="submit" class="btn btn-info pull-right" ng-click="tag.copyTag()">
+    <span class="glyphicon glyphicon-copy"></span> Copy
+  </button>
+</div>
 
 <image-details></image-details>

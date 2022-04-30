@@ -3,9 +3,9 @@ import ngRoute from 'angular-route';
 
 import routing from './image.routes';
 import ImageController from './image-controller';
-import imageDetails from './image-details-directive';
+import imageDirective from './image-details-directive';
 
-export default angular.module('app.features.image', [ngRoute, imageDetails])
+export default angular.module('app.features.image', [ngRoute, imageDirective])
   .config(routing)
   .controller('ImageController', ImageController)
   .name;

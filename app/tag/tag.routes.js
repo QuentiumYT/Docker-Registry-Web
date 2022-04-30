@@ -13,4 +13,3 @@ export default ($routeProvider) => {
       controller: 'CreateTagController as tag',
     });
 };
-

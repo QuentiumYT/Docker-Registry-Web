@@ -8,4 +8,3 @@ export default ($routeProvider) => {
       controller: 'ImageController as image',
     });
 };
-

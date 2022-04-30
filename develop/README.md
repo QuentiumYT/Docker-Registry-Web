@@ -9,15 +9,15 @@ This method shows how you can code on the angularJS frontend code and directly s
 1. [Install Docker Compose](https://docs.docker.com/compose/install/) and [Git](http://git-scm.com/downloads) on your development host. The rest of the requirements will be installed in a container.
 1. Checkout the docker-registry-frontend source code:
 
-   `git clone https://github.com/kwk/docker-registry-frontend.git`
+   `git clone https://github.com/QuentiumYT/Docker-Registry-Web.git`
 
 1. Start a frontend container and a testing registry container in the background:
 
-   `cd docker-registry-frontend/develop && docker-compose up`
+   `cd Registry/develop && docker-compose up`
 
 1. Navigate to [http://localhost:9000](http://localhost:9000) on your development machine and see the docker-registry-frontend in action. Note, that the testing registry does not persistently store changes and when started for the first time, it will not contain any repository nor image.
 
-Now you can edit the code under `docker-registry-frontend/app` **on your development host**. Most of the time when you edit something, your browser will automatically update to reflect your changes. Sometimes you might need to reload the browser to see your changes. Cool, eh?
+Now you can edit the code under `Registry/app` **on your development host**. Most of the time when you edit something, your browser will automatically update to reflect your changes. Sometimes you might need to reload the browser to see your changes. Cool, eh?
 
 ### How to connect to your own registry?
 
@@ -25,51 +25,53 @@ If you want to use your own hosted registry with your development environment, m
 
 Kill all potentially running frontend or registry containers:
 
-    docker-compose -f docker-registry-frontend/develop/docker-compose.yml kill
+    docker-compose -f Registry/develop/docker-compose.yml kill
 
 Then open [develop/docker-compose.yml](docker-compose.yml) and paste this into the file:
 
 ```yaml
-    frontend:
-      build: .
-      ports:
-        - "9000:9000"
-      volumes:
-        - ../:/source:rw
-        - ./start-develop.sh:/root/start-develop.sh:ro
+frontend:
+  build: .
+  ports:
+    - "9000:9000"
+  volumes:
+    - ../:/source:rw
+    - ./start-develop.sh:/root/start-develop.sh:ro
 ```
 
 Notice that we removed the `links` section from the `frontend` section and that the `registry` section is completely gone.
 
-Now open [Gruntfile.js](../Gruntfile.js) and find these lines:
+Now open [webpack.config.js](../webpack.config.js) and find these lines:
 
 ```javascript
-        {
-          context: '/v2',
-          host: 'path-to-your-registry-v2',
-          port: 80,
-          https: false,
-          xforward: false,
-          headers: {
-            "x-custom-added-header": 'custom-value'
-          }
-        }
+{
+    port: 9000,
+    host: '0.0.0.0',
+    static: [path.resolve(__dirname, 'app')],
+    proxy: {
+      '/v2': {
+        secure: false,
+        xforward: false,
+        target: `http://${process.env.DOCKER_REGISTRY_HOST || 'localhost'}:${process.env.DOCKER_REGISTRY_PORT || 5000}`,
+      },
+    }
+}
 ```
 
-Adjust them to your liking and replace `path-to-your-registry` with the IP address or hostname of your own registry. I suggest to use the IP address; otherwise your development container might have hard time resolving the domain.
+Adjust them to your liking and replace the host with the IP address or hostname of your own registry. I suggest to use the IP address; otherwise your development container might have hard time resolving the domain.
 
 Now, setup your containers again:
 
-   `docker-compose -f docker-registry-frontend/develop/docker-compose.yml up -d`
+`docker-compose -f Registry/develop/docker-compose.yml up -d`
 
 Finally, browse to [http://localhost:9000](http://localhost:9000) to see the frontend serving your registry.
 
 ### Things not covered by this method
 
-This method uses `grunt` internally and no Apache. Therefore some things cannot be tested or developed with this method:
+This method uses `webpack` internally and no Apache. Therefore some things cannot be tested or developed with this method:
 
-1. authentication (e.g. Kerberos) - since authentication is done in Apache normally
-1. [HTTPS](https://github.com/kwk/docker-registry-frontend#ssl-encryption)
-1. basically any parameter that you would configure in `start-apache.sh`
+1. Authentication (e.g. Kerberos) - since authentication is done in Apache normally
+1. [HTTPS](https://github.com/QuentiumYT/Docker-Registry-Web#ssl-encryption)
+1. Basically any parameter that you would configure in `start-apache.sh`
 
 Happy hacking!

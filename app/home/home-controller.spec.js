@@ -1,4 +1,4 @@
-import home from '../home';
+import home from '.';
 
 describe('HomeController', () => {
   beforeEach(angular.mock.module(home));
@@ -20,11 +20,12 @@ describe('HomeController', () => {
   it('should attach an appMode to the scope', () => {
     const expectedAppMode = {
       browseOnly: true,
-      defaultRepositoriesPerPage: 20,
-      defaultTagsPerPage: 10,
+      repoDelete: false,
+      defaultRepositoriesPerPage: 10,
+      defaultTagsPerPage: 5,
     };
 
-    $httpBackend.expectGET('app-mode.json').respond(expectedAppMode);
+    $httpBackend.expectGET('./app/app-mode.json').respond(expectedAppMode);
     $httpBackend.flush();
     jasmine.addCustomEqualityTester(angular.equals);
 
@@ -32,7 +33,7 @@ describe('HomeController', () => {
   });
 
   it('should register the controller as home', () => {
-    $httpBackend.expectGET('app-mode.json').respond({});
+    $httpBackend.expectGET('./app/app-mode.json').respond({});
     $location.path('/home');
     $rootScope.$digest();
 

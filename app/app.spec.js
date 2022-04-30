@@ -22,6 +22,6 @@ describe('App', () => {
     $location.path('/unknown-url');
     $rootScope.$digest();
 
-    expect($route.current.controller).toBe('RepositoryListController as repositories');
+    expect($route.current.controller).toBe('HomeController as home');
   });
 });

@@ -1,34 +1,26 @@
 /* @ngInject */
 export default class RepositoryDetailController {
-  constructor($route, $routeParams, $location, $log, $uibModal, AppMode) {
+  constructor($route, $location, $uibModal, AppMode) {
     this.$route = $route;
     this.$location = $location;
-    this.$routeParams = $routeParams;
     this.$uibModal = $uibModal;
 
-    // this.searchTerm = $route.current.params.searchTerm;
     this.repositoryUser = $route.current.params.repositoryUser;
     this.repositoryName = $route.current.params.repositoryName;
-    $log.log(`repository-detail-controller: this.repositoryUser = ${this.repositoryUser}`);
-    if (this.repositoryUser == null || this.repositoryUser == 'undefined') {
+    if (this.repositoryUser === null || this.repositoryUser === undefined) {
       this.repository = this.repositoryName;
-      $log.log(`repository-detail-controller: this.repositoryUser was undefined; setting repository to just repositoryName = ${this.repository}`);
     } else {
       this.repository = `${this.repositoryUser}/${this.repositoryName}`;
-      $log.log(`repository-detail-controller: this.repositoryUser was NOT undefined; setting repository to ${this.repository}`);
     }
 
     this.appMode = AppMode.query();
-    this.maxTagsPage = undefined;
-    this.selectedRepositories = [];
-    this.tagsCurrentPage = 0;
   }
 
   // Method used to disable next & previous links
   getNextHref() {
-    if (this.maxTagsPage > this.tagsCurrentPage) {
+    if (this.tagsMaxPage > this.tagsCurrentPage) {
       const nextPageNumber = this.tagsCurrentPage + 1;
-      return `/repository/${this.repository}?tagsPerPage=${this.tagsPerPage}&tagPage=${nextPageNumber}`;
+      return `/repository/${this.repository}?tagsPerPage=${this.tagsPerPage}&tagsCurrentPage=${nextPageNumber}`;
     }
     return '#';
   }
@@ -41,14 +33,17 @@ export default class RepositoryDetailController {
   }
 
   openConfirmRepoDeletionDialog(size) {
+    // Delete repository on page
+    const repository = [this.repository];
     this.$uibModal.open({
       animation: true,
       templateUrl: 'modalConfirmDeleteItems.html',
       controller: 'DeleteRepositoryController',
+      controllerAs: 'vm',
       size,
       resolve: {
         items() {
-          return this.selectedRepositories;
+          return repository;
         },
         information() {
           return `A repository is a collection of tags.

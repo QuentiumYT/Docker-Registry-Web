@@ -1,22 +1,16 @@
-import image from '../image';
+import image from '.';
 
 describe('ImageController', () => {
   beforeEach(angular.mock.module(image));
 
-  let $httpBackend;
   let $route;
   let $location;
   let $rootScope;
-  let $controller;
-  let $q;
 
-  beforeEach(inject((_$controller_, _$httpBackend_, _$route_, _$location_, _$q_, _$rootScope_) => {
-    $httpBackend = _$httpBackend_;
+  beforeEach(inject((_$route_, _$location_, _$rootScope_) => {
     $route = _$route_;
     $location = _$location_;
     $rootScope = _$rootScope_;
-    $controller = _$controller_;
-    $q = _$q_;
   }));
 
   it('should register the controller as image', () => {

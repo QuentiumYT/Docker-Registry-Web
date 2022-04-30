@@ -1,4 +1,4 @@
-import main from '../main';
+import main from '.';
 
 describe('MainController', () => {
   // load the controller's module
@@ -13,11 +13,19 @@ describe('MainController', () => {
   }));
 
   it('should attach an appVersion and registryHost to the scope', () => {
-    const expectedAppVersion = { git: { sha1: 'foo', ref: 'bar' } };
-    const expectedRegistryHost = { host: 'path-to-your-registry', port: 80 };
+    const expectedAppVersion = {
+      git: {
+        sha1: 'foo',
+        ref: 'bar',
+      },
+    };
+    const expectedRegistryHost = {
+      host: 'path-to-your-registry',
+      port: 80,
+    };
 
-    $httpBackend.expectGET('app-version.json').respond(expectedAppVersion);
-    $httpBackend.expectGET('registry-host.json').respond(expectedRegistryHost);
+    $httpBackend.expectGET('./app/app-version.json').respond(expectedAppVersion);
+    $httpBackend.expectGET('./app/registry-host.json').respond(expectedRegistryHost);
     $httpBackend.flush();
     jasmine.addCustomEqualityTester(angular.equals);
     expect(controller.appVersion).toEqual(expectedAppVersion);

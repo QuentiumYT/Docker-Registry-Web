@@ -1,12 +1,20 @@
-import tags from '../tag';
+import tags from '.';
 
 const mockRepositories = ($q) => {
   const mockRepositoryReturnValue = {
-    repos: [{ username: 'username', name: 'name', selected: true }],
+    repos: [{
+      username: 'username',
+      name: 'name',
+      selected: true,
+    }],
     lastRepository: 'lastNamespace/lastRepository',
   };
-  const mockRepository = { query: null };
-  spyOn(mockRepository, 'query').and.returnValue({ $promise: $q.when(mockRepositoryReturnValue) });
+  const mockRepository = {
+    query: null,
+  };
+  spyOn(mockRepository, 'query').and.returnValue({
+    $promise: $q.when(mockRepositoryReturnValue),
+  });
 
   return mockRepository;
 };
@@ -35,8 +43,9 @@ describe('CreateTagController', () => {
 
     const expectedAppMode = {
       browseOnly: true,
-      defaultRepositoriesPerPage: 20,
-      defaultTagsPerPage: 10,
+      repoDelete: false,
+      defaultRepositoriesPerPage: 10,
+      defaultTagsPerPage: 5,
     };
 
     const route = {
@@ -49,8 +58,11 @@ describe('CreateTagController', () => {
       },
     };
 
-    const controller = $controller('CreateTagController', { $route: route, Repository: mockRepository });
-    $httpBackend.expectGET('app-mode.json').respond(expectedAppMode);
+    const controller = $controller('CreateTagController', {
+      $route: route,
+      Repository: mockRepository,
+    });
+    $httpBackend.expectGET('./app/app-mode.json').respond(expectedAppMode);
     $httpBackend.flush();
     jasmine.addCustomEqualityTester(angular.equals);
 

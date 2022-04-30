@@ -1,59 +1,54 @@
 <!-- Maybe put this into its own directive? -->
-<button type="button" ng-disabled="!selection.length" ng-click="tag.openConfirmTagDeletionDialog()" class="btn btn-danger" ng-hide="tag.appMode.browseOnly">
+<button type="button" ng-disabled="!tag.selectedTags.length" ng-click="tag.openConfirmTagDeletionDialog()" class="btn btn-danger" ng-hide="tag.appMode.browseOnly">
   <span class="glyphicon glyphicon-trash"></span>
-  <ng-pluralize count="selection.length"
-               when="{'0': 'Select tags to delete', 'one': 'Delete one tag', 'other': 'Delete {} tags'}">
+  <ng-pluralize count="tag.selectedTags.length"
+                when="{'0': 'Select tags to delete', 'one': 'Delete one tag', 'other': 'Delete {} tags'}">
   </ng-pluralize>
 </button>
 
 <div class="table-responsive">
-  <table  class="table table-hover">
+  <table class="table table-hover">
     <thead>
       <tr>
-        <th ng-hide="tag.appMode.browseOnly"></th>
+        <th ng-hide="tag.appMode.browseOnly"><span class="glyphicon glyphicon-check"></span></th>
         <th ng-class="{strike: deleted}"><span class="glyphicon glyphicon-tag"></span> Tag</th>
-        <th ><span class="glyphicon glyphicon-qrcode"></span> Image ID</th>
+        <th><span class="glyphicon glyphicon-qrcode"></span> Image ID</th>
         <th role="button" ng-click="tag.sortTags()" ng-class="{dropup: orderByCreated==true, dropdown: orderByCreated==false}">
-          <span class="glyphicon glyphicon-calendar"></span>
-          Created
+          <span class="glyphicon glyphicon-calendar"></span> Created
           <span class="caret"></span>
         </th>
-        <th ><span class="glyphicon glyphicon-user"></span> Author</th>
-        <th ><span class="glyphicon glyphicon-eye-open"></span> Docker version</th>
-        <!-- <th ><span class="glyphicon glyphicon-arrow-up"></span> Parent's ID</th> -->
-        <!-- <th><span class="glyphicon glyphicon-compressed"></span> Size (MB)</th> -->
+        <th><span class="glyphicon glyphicon-user"></span> Author</th>
+        <th><span class="glyphicon glyphicon-eye-open"></span> Docker version</th>
+        <!-- <th><span class="glyphicon glyphicon-arrow-up"></span> Parent's ID</th> -->
+        <th><span class="glyphicon glyphicon-compressed"></span> Size (MB)</th>
       </tr>
       <tr>
         <th ng-hide="tag.appMode.browseOnly"></th>
         <th>
-          <input class="input-sm form-control" placeholder="Filter tags on this page" type="search" ng-model="search.name"/>
+          <input class="input-sm form-control" placeholder="Filter tags on this page" type="search" ng-model="search.name">
         </th>
       </tr>
     </thead>
     <tbody>
       <tr ng-repeat="t in tag.displayedTags | filter:search " ng-show="t.details" ng-class="{warning: t.selected}">
         <td ng-hide="tag.appMode.browseOnly">
-          <checkbox name="selection[]" value="{{tag.repository}}:{{t.name}}" ng-model="t.selected"></checkbox>
+          <input type="checkbox" name="tag.selectedTags[]" value="{{tag.repository}}:{{t.name}}" ng-model="t.selected">
         </td>
-        <td class="grow">
-          <a ng-bind-html="t.name" href="tag/{{tag.repository}}/{{t.name}}">{{t.name}}</a>
-        </td>
+        <td class="grow-half"><a ng-bind-html="t.name" href="tag/{{tag.repository}}/{{t.name}}">{{t.name}}</a></td>
         <td><span ng-bind-html="t.details.id | limitTo: 12"></span></td>
         <td am-time-ago="t.details.created"></td>
         <td><span ng-bind-html="(t.details.labels.maintainer || t.details.author) | linky"></span></td>
         <td ng-bind-html="t.details.docker_version"></td>
         <!-- <td><span ng-bind-html="tag.details.parent | limitTo: 12"></span></td> -->
-        <!-- <td>
-          <button type="submit" class="btn btn-info btn-xs" ng-click="calculateTotalImageSize()" ng-show="totalImageSize===null" title="Calculate total image size">
+        <td>
+          <!-- <button type="submit" class="btn btn-info btn-xs" ng-click="calculateTotalImageSize()" ng-show="totalImageSize===null" title="Calculate total image size">
             <span class="glyphicon glyphicon-stats"></span>
-          </button>
-          <span  ng-show="totalImageSize===null" ng-bind-html="tag.details.Size / 1024 / 1024 | number: 2"></span>
-          <span ng-show="totalImageSize!==null">
-            {{totalImageSize / 1024 / 1024 | number: 2}}
+          </button> -->
+          <span>
+            {{t.details.size / 1024 / 1024 | number: 2}}
           </span>
-        </td> -->
+        </td>
       </tr>
     </tbody>
   </table>
-
 </div>

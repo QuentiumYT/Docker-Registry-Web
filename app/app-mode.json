@@ -1,1 +1,6 @@
-{"browseOnly": true, "defaultRepositoriesPerPage": 20 , "defaultTagsPerPage":10}
+{
+  "browseOnly": false,
+  "repoDelete": false,
+  "defaultRepositoriesPerPage": 10,
+  "defaultTagsPerPage": 5
+}

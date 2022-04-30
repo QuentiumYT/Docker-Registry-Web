@@ -1,0 +1,42 @@
+version: "3"
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      - SERVERNAME=registry.loc
+      - DOCUMENTROOT=dist
+      - ENV_DOCKER_REGISTRY_HOST=registry
+      - ENV_DOCKER_REGISTRY_PORT=5000
+      # - ENV_DOCKER_REGISTRY_USE_SSL=1
+      - ENV_REGISTRY_PROXY_FQDN=127.0.0.1
+      - ENV_REGISTRY_PROXY_PORT=5005
+      # - ENV_USE_SSL=yes
+    links:
+      - registry:registry
+    networks:
+      default:
+        ipv4_address: 172.200.0.2
+    restart: always
+
+  registry:
+    image: registry:2.8
+    ports:
+      - "5005:5000"
+    volumes:
+      - ./config:/etc/docker/registry
+      # - ./path_to_local_cert.crt:/certs/registry.crt
+      # - ./path_to_local_cert.key:/certs/registry.key
+    networks:
+      default:
+        ipv4_address: 172.200.0.3
+    restart: always
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.200.0.0/24
+          gateway: 172.200.0.1

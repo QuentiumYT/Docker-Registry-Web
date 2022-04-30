@@ -1,4 +1,4 @@
-import tags from '../tag';
+import tags from '.';
 
 function buildRoute() {
   return {
@@ -6,7 +6,7 @@ function buildRoute() {
       params: {
         repositoryName: 'nginx',
         tagName: 'latest',
-        tagsPerPage: 10,
+        tagsPerPage: 5,
       },
     },
   };
@@ -14,8 +14,12 @@ function buildRoute() {
 
 function mockTagService($q) {
   const mockTagReturnValue = [];
-  const mockTag = { query: null };
-  spyOn(mockTag, 'query').and.returnValue({ $promise: $q.when(mockTagReturnValue) });
+  const mockTag = {
+    query: null,
+  };
+  spyOn(mockTag, 'query').and.returnValue({
+    $promise: $q.when(mockTagReturnValue),
+  });
 
   return mockTag;
 }
@@ -23,15 +27,19 @@ function mockTagService($q) {
 function mockAppMode($httpBackend) {
   const expectedAppMode = {
     browseOnly: true,
-    defaultRepositoriesPerPage: 20,
-    defaultTagsPerPage: 10,
+    repoDelete: false,
+    defaultRepositoriesPerPage: 10,
+    defaultTagsPerPage: 5,
   };
-  $httpBackend.expectGET('app-mode.json').respond(expectedAppMode);
+  $httpBackend.expectGET('./app/app-mode.json').respond(expectedAppMode);
 }
 
 function mockRegistryHost($httpBackend) {
-  const expectedRegistryHost = { host: 'path-to-your-registry', port: 80 };
-  $httpBackend.expectGET('registry-host.json').respond(expectedRegistryHost);
+  const expectedRegistryHost = {
+    host: 'path-to-your-registry',
+    port: 80,
+  };
+  $httpBackend.expectGET('./app/registry-host.json').respond(expectedRegistryHost);
 }
 
 describe('TagController', () => {
@@ -68,7 +76,11 @@ describe('TagController', () => {
     expect($route.current.controller).toBe('TagController as tag');
 
     const $scope = {};
-    const controller = $controller('TagController', { $scope });
+    const $uibModal = {};
+    const controller = $controller('TagController', {
+      $scope,
+      $uibModal,
+    });
     expect(controller.repositoryUser).toBe('repositoryUser');
     expect(controller.repositoryName).toBe('repositoryName');
     expect(controller.repository).toBe('repositoryUser/repositoryName');
@@ -78,13 +90,19 @@ describe('TagController', () => {
   describe('Sorting', () => {
     it('should sort tags Ascending', () => {
       const $scope = $rootScope.$new();
+      const $uibModal = {};
       const route = buildRoute();
       const mockTag = mockTagService($q);
 
       mockRegistryHost($httpBackend);
       mockAppMode($httpBackend);
 
-      const controller = $controller('TagController', { $scope, $route: route, Tag: mockTag });
+      const controller = $controller('TagController', {
+        $scope,
+        $uibModal,
+        $route: route,
+        Tag: mockTag,
+      });
       $httpBackend.flush();
       controller.displayedTags = [{
         name: 'aaa',
@@ -116,13 +134,19 @@ describe('TagController', () => {
 
     it('should sort tags Descending', () => {
       const $scope = $rootScope.$new();
+      const $uibModal = {};
       const route = buildRoute();
       const mockTag = mockTagService($q);
 
       mockRegistryHost($httpBackend);
       mockAppMode($httpBackend);
 
-      const controller = $controller('TagController', { $scope, $route: route, Tag: mockTag });
+      const controller = $controller('TagController', {
+        $scope,
+        $uibModal,
+        $route: route,
+        Tag: mockTag,
+      });
       $httpBackend.flush();
       controller.displayedTags = [{
         name: 'aaa',
@@ -154,4 +178,3 @@ describe('TagController', () => {
     });
   });
 });
-

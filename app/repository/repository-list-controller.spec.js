@@ -1,4 +1,4 @@
-import repository from '../repository';
+import repository from '.';
 
 describe('RepositoryListController', () => {
   // load the controller's module
@@ -33,20 +33,33 @@ describe('RepositoryListController', () => {
     };
 
     const mockRepositoryReturnValue = {
-      repos: [{ username: 'username', name: 'name', selected: true }],
+      repos: [{
+        username: 'username',
+        name: 'name',
+        selected: true,
+      }],
       lastRepository: 'lastNamespace/lastRepository',
     };
-    const mockRepository = { query: null };
-    spyOn(mockRepository, 'query').and.returnValue({ $promise: $q.when(mockRepositoryReturnValue) });
+    const mockRepository = {
+      query: null,
+    };
+    spyOn(mockRepository, 'query').and.returnValue({
+      $promise: $q.when(mockRepositoryReturnValue),
+    });
 
     const expectedAppMode = {
       browseOnly: true,
-      defaultRepositoriesPerPage: 20,
-      defaultTagsPerPage: 10,
+      repoDelete: false,
+      defaultRepositoriesPerPage: 10,
+      defaultTagsPerPage: 5,
     };
-    $httpBackend.expectGET('app-mode.json').respond(expectedAppMode);
+    $httpBackend.expectGET('./app/app-mode.json').respond(expectedAppMode);
 
-    const controller = $controller('RepositoryListController', { $scope, $route: route, Repository: mockRepository });
+    const controller = $controller('RepositoryListController', {
+      $scope,
+      $route: route,
+      Repository: mockRepository,
+    });
     $httpBackend.flush();
 
     expect(controller.reposPerPage).toBe(10);
@@ -56,14 +69,16 @@ describe('RepositoryListController', () => {
     expect(controller.repositories).toEqual(mockRepositoryReturnValue);
   });
 
-  it('/repositories/20 should display repository list page', () => {
-    $location.path('/repositories/20');
+  it('/repositories/10 should display repository list page', () => {
+    $location.path('/repositories/10');
     $rootScope.$digest();
 
     expect($route.current.controller).toBe('RepositoryListController as repositories');
 
-    const controller = $controller('RepositoryListController', { $scope: {} });
-    expect(controller.reposPerPage).toBe(20);
+    const controller = $controller('RepositoryListController', {
+      $scope: {},
+    });
+    expect(controller.reposPerPage).toBe(10);
   });
 
   it('/repositories should display repository list page', () => {
@@ -72,7 +87,9 @@ describe('RepositoryListController', () => {
 
     expect($route.current.controller).toBe('RepositoryListController as repositories');
 
-    const controller = $controller('RepositoryListController', { $scope: {} });
+    const controller = $controller('RepositoryListController', {
+      $scope: {},
+    });
     expect(controller.reposPerPage).toBeUndefined();
   });
 
@@ -82,8 +99,9 @@ describe('RepositoryListController', () => {
 
     expect($route.current.controller).toBe('RepositoryListController as repositories');
 
-    const controller = $controller('RepositoryListController', { $scope: {} });
+    const controller = $controller('RepositoryListController', {
+      $scope: {},
+    });
     expect(controller.reposPerPage).toBe(10);
   });
 });
-

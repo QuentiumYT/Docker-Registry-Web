@@ -6,7 +6,9 @@ export default class BlobService {
         method: 'HEAD',
         interceptor: {
           response(response) {
-            const res = { contentLength: parseInt(response.headers('content-length'), 10) };
+            const res = {
+              contentLength: parseInt(response.headers('content-length'), 10),
+            };
             return res;
           },
         },
@@ -37,13 +39,13 @@ export default class BlobService {
       query: {
         method: 'GET',
         transformResponse(data) {
-          data = angular.fromJson(data);
-          data.dockerfile = data.history.map(history => history.created_by
-            .replace(new RegExp('^/bin/sh -c #\\(nop\\)\\s*'), '')
-            .replace(new RegExp('^/bin/sh -c\\s*'), 'RUN ')
+          const res = angular.fromJson(data);
+          res.dockerfile = res.history.map((history) => history.created_by
+            .replace(/^\/bin\/sh -c #\(nop\)\s*/g, '')
+            .replace(/^\/bin\/sh -c\s*/, 'RUN ')
             .replace(/\t\t/g, '\\\n\t'));
 
-          return data;
+          return res;
         },
       },
     });

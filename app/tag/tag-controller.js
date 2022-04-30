@@ -11,7 +11,7 @@ function compare(a, b) {
 
 /* @ngInject */
 export default class TagController {
-  constructor($scope, $route, $location, Manifest, Tag, AppMode, filterFilter, $uibModal, Blob, RegistryHost) {
+  constructor($scope, $route, $location, $uibModal, Manifest, Tag, AppMode, filterFilter, Blob, RegistryHost) {
     this.$route = $route;
     this.$location = $location;
     this.$uibModal = $uibModal;
@@ -25,7 +25,7 @@ export default class TagController {
     // sort tags
     this.orderByCreated = true;
 
-    if (this.repositoryUser == null || this.repositoryUser == 'undefined') {
+    if (this.repositoryUser === null || this.repositoryUser === undefined) {
       this.repository = this.repositoryName;
     } else {
       this.repository = `${this.repositoryUser}/${this.repositoryName}`;
@@ -34,6 +34,7 @@ export default class TagController {
     AppMode.query((result) => {
       this.appMode = result;
       this.tagsPerPage = $route.current.params.tagsPerPage || this.appMode.defaultTagsPerPage;
+      this.tagsCurrentPage = $route.current.params.tagsCurrentPage;
       if (this.tagsPerPage === 'all') {
         this.tagsPerPage = null;
       }
@@ -47,36 +48,52 @@ export default class TagController {
       this.tags = result;
 
       // Determine the number of pages
-      this.maxTagsPage = maxTagsPerPage(result.length, this.tagsPerPage);
+      this.tagsMaxPage = maxTagsPerPage(result.length, this.tagsPerPage);
+
       // Compute the right current page number
-      this.tagsCurrentPage = $route.current.params.tagPage;
-      if (!this.tagsCurrentPage) {
-        this.tagsCurrentPage = 1;
-      } else {
+      if (this.tagsCurrentPage) {
         this.tagsCurrentPage = parseInt(this.tagsCurrentPage, 10);
-        if (this.tagsCurrentPage > this.maxTagsPage || this.tagsCurrentPage < 1) {
+        if (this.tagsCurrentPage > this.tagsMaxPage || this.tagsCurrentPage < 1) {
           this.tagsCurrentPage = 1;
         }
+      } else {
+        this.tagsCurrentPage = 1;
       }
+
       // Select wanted tags
       let idxShift = 0;
       // Copy collection for rendering in a smart-table
       this.displayedTags = [].concat(this.tags);
 
+      // Get tags per page
       if (this.tagsPerPage) {
+        this.tagsPerPage = parseInt(this.tagsPerPage, 10);
         idxShift = (this.tagsCurrentPage - 1) * this.tagsPerPage;
         this.displayedTags = this.displayedTags.slice(idxShift, (this.tagsCurrentPage) * this.tagsPerPage);
       }
 
+      this.$route.data = {
+        tagsCurrentPage: this.tagsCurrentPage,
+        tagsPerPage: this.tagsPerPage,
+        tagsMaxPage: this.tagsMaxPage,
+      };
+
       // Fetch wanted manifests
-      this.displayedTags.forEach((tag) => {
-        if (Object.prototype.hasOwnProperty.call(tag, 'name')) {
-          Manifest.query({ repository: this.repository, tagName: tag.name })
+      this.displayedTags.forEach((displayedTag) => {
+        if (Object.prototype.hasOwnProperty.call(displayedTag, 'name')) {
+          Manifest.query({
+            repository: this.repository,
+            tagName: displayedTag.name,
+          })
             .$promise.then((data) => {
+              const tag = displayedTag;
               tag.details = angular.copy(data);
               return !data.isSchemaV2
                 ? undefined
-                : Blob.query({ repository: this.repository, digest: `sha256:${data.id}` })
+                : Blob.query({
+                  repository: this.repository,
+                  digest: `sha256:${data.id}`,
+                })
                   .$promise.then((config) => {
                     const labels = config.container_config && config.container_config.Labels;
                     tag.details.created = config.created;
@@ -91,18 +108,29 @@ export default class TagController {
         }
       });
 
-      $scope.$watch(() => this.displayedTags.filter(t => t.selected), (nv) => {
-        this.selection = nv.map(tag => `${this.repository}:${tag.name}`);
+      $scope.$watch(() => this.displayedTags.filter((t) => t.selected), (nv) => {
+        this.selectedTags = nv.map((tag) => `${this.repository}:${tag.name}`);
       }, true);
     });
 
     // selected tags
-    this.selection = [];
+    this.selectedTags = [];
   }
 
   // helper method to get selected tags
   selectedTags() {
-    return this.filterFilter(this.displayedTags, { selected: true });
+    return this.filterFilter(this.displayedTags, {
+      selected: true,
+    });
+  }
+
+  copyTag() {
+    this.tmpInput = document.createElement('input');
+    document.querySelector('body').append(this.tmpInput);
+    this.tmpInput.value = document.querySelector('code[style]').innerText;
+    this.tmpInput.select();
+    document.execCommand('copy');
+    this.tmpInput.remove();
   }
 
   sortTags() {
@@ -116,14 +144,23 @@ export default class TagController {
   }
 
   openConfirmTagDeletionDialog(size) {
+    // Delete tag on page
+    let selectedTags;
+    if (this.tagName) {
+      selectedTags = [`${this.repository}:${this.tagName}`];
+      // Delete multiple tags checkbox
+    } else {
+      selectedTags = this.selectedTags;
+    }
     this.$uibModal.open({
       animation: true,
       templateUrl: 'modalConfirmDeleteItems.html',
-      controller: 'DeleteTagsController',
+      controller: 'DeleteTagController',
+      controllerAs: 'vm',
       size,
       resolve: {
         items() {
-          return this.selection;
+          return selectedTags;
         },
         information() {
           return `A tag is basically a reference to an image.

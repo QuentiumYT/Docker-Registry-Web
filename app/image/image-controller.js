@@ -8,21 +8,31 @@ export default class ImageController {
     this.repositoryUser = $route.current.params.repositoryUser;
     this.repositoryName = $route.current.params.repositoryName;
 
-    if (this.repositoryUser == null || this.repositoryUser == 'undefined') {
+    if (this.repositoryUser === null || this.repositoryUser === undefined) {
       this.repository = this.repositoryName;
     } else {
       this.repository = `${this.repositoryUser}/${this.repositoryName}`;
     }
 
-    Manifest.query({ repository: this.repository, tagName: this.tagName })
+    Manifest.query({
+      repository: this.repository,
+      tagName: this.tagName,
+    })
       .$promise.then((data) => {
         this.imageDetails = angular.copy(data);
 
         return !data.isSchemaV2
           ? undefined
-          : Blob.query({ repository: this.repository, digest: `sha256:${data.id}` })
+          : Blob.query({
+            repository: this.repository,
+            digest: `sha256:${data.id}`,
+          })
             .$promise.then((config) => {
-              const labels = config.container_config && config.container_config.Labels;
+              const labelsRaw = config.container_config && config.container_config.Labels;
+              const labels = Object.entries(labelsRaw).reduce((lab, [k, v]) => ({
+                ...lab,
+                [k]: v.replace('\\n', '\n').replace('<br>', '\n'),
+              }), {});
               this.imageDetails.created = config.created;
               this.imageDetails.docker_version = config.docker_version;
               this.imageDetails.os = config.os;
@@ -30,8 +40,6 @@ export default class ImageController {
               this.imageDetails.labels = labels;
               this.imageDetails.dockerfile = config.dockerfile;
               this.imageDetails.layers = config.dockerfile.length;
-
-              this.totalImageSize = this.imageDetails.size;
             });
       });
   }
@@ -40,16 +48,19 @@ export default class ImageController {
    * Calculates the total download size for the image based on
    * it's layers.
    */
-  calculateTotalImageSize() {
-    this.totalImageSize = 0;
+  //   calculateTotalImageSize() {
+  //     this.totalImageSize = 0;
 
-    angular.forEach(this.imageDetails.fsLayers, (id) => {
-      this.Blob.querySize({ repository: this.repository, digest: id.blobSum })
-        .$promise.then((data) => {
-          if (!isNaN(data.contentLength - 0)) {
-            this.totalImageSize += data.contentLength;
-          }
-        });
-    });
-  }
+  //     angular.forEach(this.imageDetails.fsLayers, (id) => {
+  //       this.Blob.querySize({
+  //           repository: this.repository,
+  //           digest: id.blobSum
+  //         })
+  //         .$promise.then((data) => {
+  //           if (!isNaN(data.contentLength - 0)) {
+  //             this.totalImageSize += data.contentLength;
+  //           }
+  //         });
+  //     });
+  //   }
 }

@@ -2,7 +2,7 @@ function getCurrentLastRepository(params) {
   return [
     params.lastNamespace,
     params.lastRepository,
-  ].filter(p => !!p)
+  ].filter((p) => !!p)
     .join('\\');
 }
 
@@ -53,19 +53,18 @@ export default class RepositoryListController {
 
       this.isLastPage = !data.lastRepository;
       this.isFirstPage = !this.currentLastRepository;
-      // $scope.$watch('repositories.repos|filter:{selected:true}', (nv) => {
-      //   this.selectedRepositories = nv.map(repo => repo.name);
-      // }, true);
 
-      $scope.$watch(() => this.repositories.repos.filter(r => r.selected), (nv) => {
-        this.selectedRepositories = nv.map(repo => repo.name);
+      $scope.$watch(() => this.repositories.repos.filter((r) => r.selected), (nv) => {
+        this.selectedRepositories = nv.map((repo) => repo.name);
       }, true);
     });
   }
 
   // helper method to get selected tags
   selectedRepos() {
-    return this.filterFilter(this.repositories.repos, { selected: true });
+    return this.filterFilter(this.repositories.repos, {
+      selected: true,
+    });
   }
 
   page(num) {
@@ -85,14 +84,19 @@ export default class RepositoryListController {
   }
 
   openConfirmRepoDeletionDialog(size) {
+    // Delete multiple repositories checkbox
+    const {
+      selectedRepositories,
+    } = this;
     this.$uibModal.open({
       animation: true,
       templateUrl: 'modalConfirmDeleteItems.html',
       controller: 'DeleteRepositoryController',
+      controllerAs: 'vm',
       size,
       resolve: {
         items() {
-          return this.selectedRepositories;
+          return selectedRepositories;
         },
         information() {
           return `A repository is a collection of tags.
